@@ -1,0 +1,44 @@
+import pandas as pd
+import csv
+import sklearn
+import numpy
+
+def my_prediction(event,context):
+    #myinput = event['input']
+    print'Enter Temp,Humidity,soil moisture,sunlight level as a string'
+    para=int(input())
+    light=para%100
+    para=para/100
+    moisture=para%100
+    para=para/100
+    humidity=para%100
+    temp=para/100
+    sample=[[light,humidity,moisture,temp]]
+    from sklearn.preprocessing import Imputer, StandardScaler
+    header_row = ['temp', 'humidity','moisture','sunlight','yield_ag']
+    df = pd.read_csv('mysoil3.csv',encoding='utf-8', names=header_row)
+    df = pd.DataFrame(Imputer(missing_values='NaN', strategy='mean', axis=0).fit_transform(df), columns=header_row)
+    df = df.astype(int)
+    af=df.values
+    Y = df['yield_ag']
+    X = df.drop('yield_ag', axis=1)
+    from sklearn.neighbors import KNeighborsClassifier
+    knn=KNeighborsClassifier(n_neighbors=5)
+    knn.fit(X,Y)
+    result= knn.predict(sample)
+    print int(result)
+
+    if int(result)==0:
+        a='Low-Yield'
+
+    if int(result)==1:
+        a='medium-Yield'
+
+    if int(result)==2:
+        a='High-Yield'
+
+
+    #print Y
+    print a    
+    return a
+my_prediction(0,1)
